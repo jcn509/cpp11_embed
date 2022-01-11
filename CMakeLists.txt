@@ -17,3 +17,15 @@ add_executable(Cpp11Embed
 )
 
 target_link_libraries(Cpp11Embed PRIVATE Cpp11EmbedLib)
+
+# By default we only want to bother building tests if this is the top level CMakeLists.txt
+# if someone wants to use this project in their own they probably won't want to bother
+# building the tests
+if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
+    include(CTest)
+endif()
+
+# Override variable to enable users to build tests even if they submodule this repo
+if((CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME OR CPP11_EMBED_TESTING) AND BUILD_TESTING)
+    add_subdirectory(tests)
+endif()
