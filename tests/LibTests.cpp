@@ -6,9 +6,16 @@
 
 namespace {
 std::string GetEscapedCharacterChar(const char c) {
-  std::stringstream strm;
+  std::ostringstream strm;
   cpp11embed::OutputEscapedCharacter(c, strm);
   return strm.str();
+}
+
+std::string GetEscapedStringLiteral(const std::string& to_escape) {
+  std::istringstream in_strm{to_escape};
+  std::ostringstream out_strm;
+  cpp11embed::OutputEscapedStringLiteral(in_strm, out_strm);
+  return out_strm.str();
 }
 
 bool CharShouldBeEscaped(const char c) {
@@ -95,4 +102,26 @@ TEST_CASE(
     "cpp11embed::OutputEscapedCharacter character that should be escaped - \\v",
     "[cpp11embed][OutputEscapedCharacter]") {
   REQUIRE(GetEscapedCharacterChar('\v') == "\\v");
+}
+
+TEST_CASE("cpp11embed::OutputEscapedStringLiteral no characters need escaping",
+          "[cpp11embed][OutputEscapedStringLiteral]") {
+  const std::string to_escape =
+      GENERATE("", "abcdefghijklmnopqrstuvwxyz", " ", "ASDNCA caascfd ~ACDCDA",
+               ".!// / ;:@#)()*&^%", "");
+  CAPTURE(to_escape);
+  REQUIRE(GetEscapedStringLiteral(to_escape) == "\"" + to_escape + "\"");
+}
+
+TEST_CASE("cpp11embed::OutputEscapedStringLiteral all characters need escaping",
+          "[cpp11embed][OutputEscapedStringLiteral]") {
+  const std::string to_escape = "\n\r\t";
+  REQUIRE(GetEscapedStringLiteral(to_escape) == R"("\n\r\t")");
+}
+
+TEST_CASE(
+    "cpp11embed::OutputEscapedStringLiteral some characters need escaping",
+    "[cpp11embed][OutputEscapedStringLiteral]") {
+  const std::string to_escape = "\na\rbb\tccc";
+  REQUIRE(GetEscapedStringLiteral(to_escape) == R"("\na\rbb\tccc")");
 }
