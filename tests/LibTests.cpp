@@ -5,13 +5,13 @@
 #include "Lib.h"
 
 namespace {
-[[nodiscard]] std::string GetEscapedCharacterChar(const char c) {
+std::string GetEscapedCharacterChar(const char c) {
   std::stringstream strm;
   cpp11embed::OutputEscapedCharacter(c, strm);
   return strm.str();
 }
 
-[[nodiscard]] bool CharShouldBeEscaped(const char c) {
+bool CharShouldBeEscaped(const char c) {
   return (c == '\'') || (c == '\"') || (c == '\?') || (c == '\\') ||
          (c == '\a') || (c == '\b') || (c == '\f') || (c == '\n') ||
          (c == '\r') || (c == '\t') || (c == '\v');
