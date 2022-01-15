@@ -14,6 +14,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+      with:
+        submodules: recursive
     - name: Install deps
       shell: bash
       # TODO: don't install all of VS build tools...
