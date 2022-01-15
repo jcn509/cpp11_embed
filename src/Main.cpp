@@ -1,18 +1,20 @@
+// Standard library
 #include <cstdlib>
 #include <fstream>
 #include <iostream>
 #include <memory>
 
+// 3rd party
+#include <args.hxx>
+
+// Project
 #include "Lib.h"
 
-int main(const int argc, char *argv[]) {
-  if (argc != 4) {
-    std::cerr << "Usage:\n ";
-    return EXIT_FAILURE;
-  }
-  const char *input_filename = argv[1];
-  const char *identifier_name = argv[2];
-  const char *output_filename = argv[3];
+namespace {
+bool OutputHeader(args::Positional<std::string> &input_file,
+                  args::Positional<std::string> &identifier_name,
+                  args::ValueFlag<std::string> &output_filename) {
+  const std::string &input_filename = args::get(input_file);
   // Use std::optional? Would require C++17?
   // Read in binary mode so that we embed the file contents
   // exactly as they are
@@ -21,23 +23,62 @@ int main(const int argc, char *argv[]) {
           ? nullptr
           : std::make_unique<std::ifstream>(input_filename,
                                             std::ifstream::binary);
+  if (in_file_stream != nullptr && !in_file_stream) {
+    std::cerr << "Unable to read input\n";
+    return false;
+  }
+
   const std::unique_ptr<std::ofstream> out_file_stream =
-      (std::string{output_filename} == "-")
-          ? nullptr
-          : std::make_unique<std::ofstream>(output_filename);
+      (output_filename)
+          ? std::make_unique<std::ofstream>(args::get(output_filename))
+          : nullptr;
+  if (out_file_stream != nullptr && !out_file_stream) {
+    std::cerr << "Unable to open output file\n";
+    return false;
+  }
 
   std::istream &input_stream =
       (in_file_stream == nullptr) ? std::cin : *in_file_stream;
   std::ostream &output_stream =
       (out_file_stream == nullptr) ? std::cout : *out_file_stream;
-  if (input_stream) {
-    cpp11embed::OutputEscapedStringLiteralHeader(identifier_name, input_stream,
-                                                 output_stream);
-  } else {
-    // couldn't open the file
-    std::cerr << "Unable to read input\n";
+
+  cpp11embed::OutputEscapedStringLiteralHeader(args::get(identifier_name),
+                                               input_stream, output_stream);
+  return true;
+}
+}  // namespace
+
+int main(const int argc, char *argv[]) {
+  args::ArgumentParser parser("CPP11 Embed", "Embed files in C++11 programs");
+  args::HelpFlag help(parser, "help", "Display this help menu", {'h', "help"});
+
+  args::Positional<std::string> input_file(
+      parser, "input_file", "Input file (use - to read from stdin)",
+      args::Options::Required);
+  args::Positional<std::string> identifier_name(
+      parser, "identifier_name",
+      "The name of constant/variable you want to store the data in",
+      args::Options::Required);
+  args::ValueFlag<std::string> output_filename(
+      parser, "output",
+      "Redirect the output to a file instead of standard output", {'o'});
+
+  try {
+    parser.ParseCLI(argc, argv);
+  } catch (args::Help &) {
+    std::cout << parser;
+    return EXIT_SUCCESS;
+  } catch (args::ParseError &e) {
+    std::cerr << e.what() << std::endl;
+    std::cerr << parser;
+    return EXIT_FAILURE;
+  } catch (args::ValidationError &e) {
+    std::cerr << e.what() << std::endl;
+    std::cerr << parser;
     return EXIT_FAILURE;
   }
 
-  return EXIT_SUCCESS;
+  return OutputHeader(input_file, identifier_name, output_filename)
+             ? EXIT_SUCCESS
+             : EXIT_FAILURE;
 }
