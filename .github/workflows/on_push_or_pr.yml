@@ -50,4 +50,5 @@ jobs:
     - name: Run tests
       shell: bash
       run: |
+        cd build
         ctest --output-on-failure
