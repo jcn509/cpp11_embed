@@ -1,0 +1,51 @@
+name: pyxboxtest
+
+on: [push, pull_request]
+
+jobs:
+  build:
+
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        # TODO: build on older distro so that it will work everywhere
+        os: [macos-latest, windows-latest, ubuntu-latest]
+        python-version: [3.8]
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install deps
+      shell: bash
+      # TODO: don't install all of VS build tools...
+      run: |
+        if [ "$RUNNER_OS" == "Linux" ]; then
+            sudo apt-get update && sudo apt install \
+              build-essential \
+              clang-tidy \
+              cmake \
+              cppcheck \
+              ninja-build
+        elif [ "$RUNNER_OS" == "Windows" ]; then
+            choco install visualstudio2022buildtools --package-parameters "--allWorkloads --includeRecommended --includeOptional --passive --locale en-US"
+            choco install ninja
+        elif [ "$RUNNER_OS" == "macOS" ]; then
+            brew update && brew install \
+              gcc \
+              cmake \
+              ninja
+        else
+            echo "$RUNNER_OS not supported"
+            exit 1
+        fi
+    # TODO: also build in release mode with LTO and do a debug build with ASAN + UBSAN
+    - name: Build code
+      shell: bash
+      run: |
+        mkdir build
+        cd build
+        cmake -G "Ninja" ..
+        ninja
+    - name: Run tests
+      shell: bash
+      run: |
+        ctest --output-on-failure
