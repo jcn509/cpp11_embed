@@ -1,4 +1,4 @@
-name: pyxboxtest
+name: cpp1_embed
 
 on: [push, pull_request]
 
