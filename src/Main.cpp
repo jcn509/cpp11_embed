@@ -25,7 +25,7 @@ int main(const int argc, char *argv[]) {
       (std::string{output_filename} == "-")
           ? nullptr
           : std::make_unique<std::ofstream>(output_filename);
-  // const bool binary_mode = false;
+
   std::istream &input_stream =
       (in_file_stream == nullptr) ? std::cin : *in_file_stream;
   std::ostream &output_stream =
@@ -35,6 +35,8 @@ int main(const int argc, char *argv[]) {
                                                  output_stream);
   } else {
     // couldn't open the file
+    std::cerr << "Unable to read input\n";
+    return EXIT_FAILURE;
   }
 
   return EXIT_SUCCESS;
