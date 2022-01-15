@@ -2,9 +2,7 @@
 
 #include <algorithm>
 #include <iterator>
-
-// remove
-#include <iostream>
+#include <string>
 
 namespace cpp11embed {
 void OutputEscapedCharacter(const char c, std::ostream &out) {
@@ -15,6 +13,9 @@ void OutputEscapedCharacter(const char c, std::ostream &out) {
     case '\"':
       out << "\\\"";
       break;
+    // Escaping questions marks may be necessary before C++17?:
+    // https://en.cppreference.com/w/cpp/language/escape#Notes
+    // https://en.cppreference.com/w/cpp/language/operator_alternative
     case '\?':
       out << "\\?";
       break;
@@ -31,6 +32,8 @@ void OutputEscapedCharacter(const char c, std::ostream &out) {
       out << "\\f";
       break;
     case '\n':
+#include <algorithm>
+#include <string>
       out << "\\n";
       break;
     case '\r':
@@ -56,5 +59,15 @@ void OutputEscapedStringLiteral(std::istream &input_stream,
                   OutputEscapedCharacter(c, output_stream);
                 });
   output_stream << '"';
+}
+
+void OutputEscapedStringLiteralHeader(const std::string &identifier_name,
+                                      std::istream &input_stream,
+                                      std::ostream &output_stream) {
+  // TODO: Allow using header guard instead of pragma once
+  output_stream << "#pragma once\n\n"
+                << "constexpr char* " << identifier_name << " = ";
+  OutputEscapedStringLiteral(input_stream, output_stream);
+  output_stream << ";\n";
 }
 }  // namespace cpp11embed

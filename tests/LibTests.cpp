@@ -18,6 +18,15 @@ std::string GetEscapedStringLiteral(const std::string& to_escape) {
   return out_strm.str();
 }
 
+std::string GetEscapedStringLiteralHeader(const std::string& identifier,
+                                          const std::string& literal_value) {
+  std::istringstream input_stream{literal_value};
+  std::ostringstream output_strm;
+  cpp11embed::OutputEscapedStringLiteralHeader(identifier, input_stream,
+                                               output_strm);
+  return output_strm.str();
+}
+
 bool CharShouldBeEscaped(const char c) {
   return (c == '\'') || (c == '\"') || (c == '\?') || (c == '\\') ||
          (c == '\a') || (c == '\b') || (c == '\f') || (c == '\n') ||
@@ -124,4 +133,12 @@ TEST_CASE(
     "[cpp11embed][OutputEscapedStringLiteral]") {
   const std::string to_escape = "\na\rbb\tccc";
   REQUIRE(GetEscapedStringLiteral(to_escape) == R"("\na\rbb\tccc")");
+}
+
+TEST_CASE("cpp11embed::OutputStringLiteralHeader",
+          "[cpp11embed][OutputStringLiteralHeader]") {
+  const std::string identifier = "an_identifier";
+  const std::string literal_value = "abcdefg\n";
+  REQUIRE(GetEscapedStringLiteralHeader(identifier, literal_value) ==
+          "#pragma once\n\nconstexpr char* an_identifier = \"abcdefg\\n\";\n");
 }
