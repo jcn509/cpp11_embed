@@ -61,4 +61,5 @@ jobs:
       shell: bash
       run: |
         cd build
+        ninja InstallPythonDependencies
         ctest --output-on-failure
