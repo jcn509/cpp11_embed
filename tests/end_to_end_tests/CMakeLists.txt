@@ -5,6 +5,6 @@ find_package (Python COMPONENTS Interpreter)
 # test independently
 # TODO: need the executable to be built before this can be run
 add_test (NAME EndToEndTests
-  COMMAND ${Python_EXECUTABLE} -m pipenv run pytest tests --cpp11-embed-path $<TARGET_FILE:Cpp11Embed>
+  COMMAND ${Python_EXECUTABLE} -m pipenv run pytest tests --cpp11-embed-path $<TARGET_FILE:Cpp11Embed> -vv
   WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
 )

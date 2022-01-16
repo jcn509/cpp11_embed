@@ -1,20 +1,13 @@
-import subprocess
-from typing import List
+"""Basic end to end tests"""
+
 import os
 from pathlib import Path
 
 import pytest
 
-from .cpp11_embed_path import get_cpp11_embed_path
+from .utilities import run_cpp11_embed
 
 _TEST_FILES_DIR = Path(os.path.dirname(__file__)) / "test_files"
-
-
-def run_cpp11_embed(
-    input_filename: str, identifier_name: str, other_arguments: List[str] = []
-):
-    cmd = [get_cpp11_embed_path(), input_filename, identifier_name] + other_arguments
-    return subprocess.run(cmd, capture_output=True, text=True)
 
 
 @pytest.mark.parametrize("identifier_name", ("test_name", "other_name"))
@@ -26,13 +19,18 @@ def run_cpp11_embed(
         ("tabs.txt", "a\\tb\\tcde\\tfg"),
     ),
 )
-def test_successful_file_read(
+def test_successful_file_read_stdout(
     identifier_name: str, file_name: str, expected_string_literal_contents: str
 ):
+    """Test that a file can be read successfully and the correct header is
+    generated and printed to stdout.
+
+    stderror
+    """
     result = run_cpp11_embed(_TEST_FILES_DIR / file_name, identifier_name)
     assert (
-        result.stdout
-        == f'#pragma once\n\nconstexpr char* {identifier_name} = "{expected_string_literal_contents}";\n'
+        result.stdout == f"#pragma once\n\nconstexpr char* {identifier_name} = "
+        f'"{expected_string_literal_contents}";\n'
     )
     assert result.stderr == "", "No errors reported"
     assert result.returncode == 0, "No errors reported"
