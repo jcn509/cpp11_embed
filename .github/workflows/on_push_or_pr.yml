@@ -4,14 +4,11 @@ on: [push, pull_request]
 
 jobs:
   build:
-
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         # TODO: build on older distro so that it will work everywhere
         os: [macos-latest, windows-latest, ubuntu-latest]
-        python-version: [3.8]
-
     steps:
     - uses: actions/checkout@v2
       with:
