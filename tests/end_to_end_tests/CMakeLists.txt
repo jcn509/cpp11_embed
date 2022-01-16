@@ -3,9 +3,10 @@ find_package (Python COMPONENTS Interpreter)
 
 add_custom_target(
     InstallPythonDependencies
-    COMMAND ${Python_EXECUTABLE} -m pipenv sync
+    COMMAND ${Python_EXECUTABLE} -m pipenv install --verbose
     COMMENT "Installing Python dependencies"
     DEPENDS
+        ${CMAKE_CURRENT_LIST_DIR}/Pipfile
         ${CMAKE_CURRENT_LIST_DIR}/Pipfile.lock
     WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
 )
