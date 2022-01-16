@@ -154,7 +154,7 @@ TEST_CASE("cpp11embed::OutputStringLiteralHeader",
 TEST_CASE("cpp11embed::GetBinaryInitialiser {1, 2, 3, 4}",
           "[cpp11embed][GetBinaryInitialiser]") {
   constexpr char input[]{1, 2, 3, 4};
-  std::istringstream input_stream{input};
+  std::istringstream input_stream{std::string{input, sizeof(input)}};
   const cpp11embed::InitialiserAndNumberOfElements initialiser =
       cpp11embed::GetBinaryInitialiser(input_stream);
   REQUIRE(initialiser.initialiser == "{1, 2, 3, 4}");
@@ -164,7 +164,7 @@ TEST_CASE("cpp11embed::GetBinaryInitialiser {1, 2, 3, 4}",
 TEST_CASE("cpp11embed::GetBinaryInitialiser {9, 12, 3}",
           "[cpp11embed][GetBinaryInitialiser]") {
   constexpr char input[]{9, 12, 3};
-  std::istringstream input_stream{input};
+  std::istringstream input_stream{std::string{input, sizeof(input)}};
   const cpp11embed::InitialiserAndNumberOfElements initialiser =
       cpp11embed::GetBinaryInitialiser(input_stream);
   REQUIRE(initialiser.initialiser == "{9, 12, 3}");

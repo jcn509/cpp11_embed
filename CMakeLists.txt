@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.12)
 project(Cpp11Embed)
 
 set(CMAKE_CXX_STANDARD 14)
@@ -7,6 +7,16 @@ if(MSVC)
   add_compile_options(/W4 /WX)
 else()
   add_compile_options(-Wall -Wextra -Wpedantic -Werror)
+endif()
+
+# Enable Link-Time Optimization, AKA Inter-Procedure Optimization
+if(NOT ("${CMAKE_BUILD_TYPE}" STREQUAL "Debug"))
+    include(CheckIPOSupported)
+    check_ipo_supported(RESULT LTOAvailable)
+endif()
+if(LTOAvailable)
+    message("Link-time optimization enabled")
+    set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
 endif()
 
 add_library(Cpp11EmbedLib STATIC ${CMAKE_CURRENT_LIST_DIR}/src/Lib.cpp)
