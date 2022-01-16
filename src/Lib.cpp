@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <iterator>
+#include <sstream>
 #include <string>
 
 namespace cpp11embed {
@@ -69,5 +70,46 @@ void OutputEscapedStringLiteralHeader(const std::string &identifier_name,
                 << "constexpr char* " << identifier_name << " = ";
   OutputEscapedStringLiteral(input_stream, output_stream);
   output_stream << ";\n";
+}
+
+InitialiserAndNumberOfElements GetBinaryInitialiser(
+    std::istream &input_stream) {
+  std::ostringstream output_stream;
+  output_stream << "{";
+  size_t num_elements = 0;
+  if (input_stream) {
+    while (1) {
+      uint8_t c;
+      input_stream.read(reinterpret_cast<char *>(&c), sizeof(uint8_t));
+      output_stream << std::to_string(c);
+      num_elements++;
+      // Check to see if there is another byte
+      input_stream.peek();
+      if (input_stream.eof()) {
+        break;
+      } else {
+        // Not yet at the last element
+        output_stream << ", ";
+      }
+    }
+  }
+  output_stream << "}";
+  return {output_stream.str(), num_elements};
+}
+
+void OutputBinaryDataHeader(const std::string &identifier_name,
+                            std::istream &input_stream,
+                            std::ostream &output_stream) {
+  // TODO: Allow using header guard instead of pragma once
+
+  const InitialiserAndNumberOfElements binary_initialiser_details =
+      GetBinaryInitialiser(input_stream);
+  output_stream << "#pragma once\n\n"
+                << "#include <array>\n"
+                << "#include <cstdint>\n\n"
+                << "constexpr std::array<uint8_t, "
+                << binary_initialiser_details.number_of_elements << "> "
+                << identifier_name << binary_initialiser_details.initialiser
+                << ";\n";
 }
 }  // namespace cpp11embed

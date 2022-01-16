@@ -26,15 +26,21 @@ jobs:
               clang-tidy \
               cmake \
               cppcheck \
-              ninja-build
+              ninja-build \
+              python3 \
+              python3-is-python
         elif [ "$RUNNER_OS" == "Windows" ]; then
             choco install visualstudio2022buildtools --package-parameters "--allWorkloads --includeRecommended --includeOptional --passive --locale en-US"
-            choco install ninja
+            choco install \
+              ninja \
+              python
         elif [ "$RUNNER_OS" == "macOS" ]; then
             brew update && brew install \
               gcc \
               cmake \
-              ninja
+              ninja \
+              pyenv
+            pyenv install 3.8.6
         else
             echo "$RUNNER_OS not supported"
             exit 1
@@ -48,10 +54,6 @@ jobs:
         cd build
         cmake -G "Ninja" ..
         ninja
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
-      with:
-        python-version: 3.9
     # TODO: pylint and pytest
     - name: Install Python dependencies
       shell: bash
