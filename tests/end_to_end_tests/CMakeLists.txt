@@ -3,7 +3,6 @@ find_package (Python COMPONENTS Interpreter)
 
 add_custom_target(
     InstallPythonDependencies
-    ALL
     COMMAND ${Python_EXECUTABLE} -m pipenv sync
     COMMENT "Installing Python dependencies"
     DEPENDS
