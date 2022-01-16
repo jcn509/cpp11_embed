@@ -61,7 +61,8 @@ int main(const int argc, char *argv[]) {
       args::Options::Required);
   args::ValueFlag<std::string> output_filename(
       parser, "output",
-      "Redirect the output to a file instead of standard output", {'o'});
+      "Redirect the output to a file instead of standard output",
+      {'o', "output"});
 
   try {
     parser.ParseCLI(argc, argv);
