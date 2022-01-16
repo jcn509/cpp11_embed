@@ -1,6 +1,16 @@
 find_package (Python COMPONENTS Interpreter)
 # TODO: what to do if Python is not found?
 
+add_custom_target(
+    InstallPythonDependencies
+    ALL
+    COMMAND ${Python_EXECUTABLE} -m pipenv sync
+    COMMENT "Installing Python dependencies"
+    DEPENDS
+        ${CMAKE_CURRENT_LIST_DIR}/Pipfile.lock
+    WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
+)
+
 # TODO: write some CMake function like what catch2 has to register each
 # test independently
 # TODO: need the executable to be built before this can be run
