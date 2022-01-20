@@ -20,10 +20,9 @@ bool OutputHeader(args::Positional<std::string> &input_file,
   // Read in binary mode so that we embed the file contents
   // exactly as they are
   const std::unique_ptr<std::ifstream> in_file_stream =
-      (std::string{input_filename} == "-")
-          ? nullptr
-          : std::make_unique<std::ifstream>(input_filename,
-                                            std::ifstream::binary);
+      (input_filename == "-") ? nullptr
+                              : std::make_unique<std::ifstream>(
+                                    input_filename, std::ifstream::binary);
   if (in_file_stream != nullptr && !in_file_stream) {
     std::cerr << "Unable to read input\n";
     return false;
