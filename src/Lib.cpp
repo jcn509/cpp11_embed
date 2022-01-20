@@ -1,11 +1,45 @@
 #include "Lib.h"
 
 #include <algorithm>
+#include <cctype>
+#include <functional>
 #include <iterator>
 #include <sstream>
 #include <string>
 
+namespace {
+void OutputHeader(
+    const std::string &identifier_name, const bool use_header_guard,
+    std::istream &input_stream, std::ostream &output_stream,
+    void (*const output_header_content)(const std::string &identifier_name,
+                                        std::istream &input_stream,
+                                        std::ostream &output_stream)) {
+  if (use_header_guard) {
+    const auto output_upper_case = [&]() {
+      for (const auto &c : identifier_name) {
+        output_stream << static_cast<char>(std::toupper(c));
+      }
+    };
+    output_stream << "#ifndef ";
+    output_upper_case();
+    output_stream << "\n#define ";
+    output_upper_case();
+    output_stream << "\n\n";
+  } else {
+    output_stream << "#pragma once\n\n";
+  }
+
+  output_header_content(identifier_name, input_stream, output_stream);
+  output_stream << "\n";
+
+  if (use_header_guard) {
+    output_stream << "\n#endif\n";
+  }
+}
+}  // namespace
+
 namespace cpp11embed {
+
 void OutputEscapedCharacter(const char c, std::ostream &out) {
   switch (c) {
     case '\'':
@@ -63,13 +97,17 @@ void OutputEscapedStringLiteral(std::istream &input_stream,
 }
 
 void OutputEscapedStringLiteralHeader(const std::string &identifier_name,
+                                      const bool use_header_guard,
                                       std::istream &input_stream,
                                       std::ostream &output_stream) {
-  // TODO: Allow using header guard instead of pragma once
-  output_stream << "#pragma once\n\n"
-                << "constexpr char* " << identifier_name << " = ";
-  OutputEscapedStringLiteral(input_stream, output_stream);
-  output_stream << ";\n";
+  OutputHeader(identifier_name, use_header_guard, input_stream, output_stream,
+               [](const std::string &identifier_name,
+                  std::istream &input_stream, std::ostream &output_stream) {
+                 output_stream << "constexpr char* " << identifier_name
+                               << " = ";
+                 OutputEscapedStringLiteral(input_stream, output_stream);
+                 output_stream << ";";
+               });
 }
 
 InitialiserAndNumberOfElements GetBinaryInitialiser(
@@ -98,18 +136,21 @@ InitialiserAndNumberOfElements GetBinaryInitialiser(
 }
 
 void OutputBinaryDataHeader(const std::string &identifier_name,
+                            const bool use_header_guard,
                             std::istream &input_stream,
                             std::ostream &output_stream) {
-  // TODO: Allow using header guard instead of pragma once
-
-  const InitialiserAndNumberOfElements binary_initialiser_details =
-      GetBinaryInitialiser(input_stream);
-  output_stream << "#pragma once\n\n"
-                << "#include <array>\n"
-                << "#include <cstdint>\n\n"
-                << "constexpr std::array<uint8_t, "
-                << binary_initialiser_details.number_of_elements << "> "
-                << identifier_name << binary_initialiser_details.initialiser
-                << ";\n";
+  OutputHeader(
+      identifier_name, use_header_guard, input_stream, output_stream,
+      [](const std::string &identifier_name, std::istream &input_stream,
+         std::ostream &output_stream) {
+        const InitialiserAndNumberOfElements binary_initialiser_details =
+            GetBinaryInitialiser(input_stream);
+        output_stream << "#include <array>\n"
+                      << "#include <cstdint>\n\n"
+                      << "constexpr std::array<uint8_t, "
+                      << binary_initialiser_details.number_of_elements << "> "
+                      << identifier_name
+                      << binary_initialiser_details.initialiser << ";";
+      });
 }
 }  // namespace cpp11embed

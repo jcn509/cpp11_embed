@@ -14,7 +14,7 @@ namespace {
 bool OutputHeader(args::Positional<std::string> &input_file,
                   args::Positional<std::string> &identifier_name,
                   args::ValueFlag<std::string> &output_filename,
-                  args::Flag &binary_mode) {
+                  args::Flag &binary_mode, args::Flag &use_header_guard) {
   const std::string &input_filename = args::get(input_file);
   // Use std::optional? Would require C++17?
   // Read in binary mode so that we embed the file contents
@@ -44,10 +44,12 @@ bool OutputHeader(args::Positional<std::string> &input_file,
       (out_file_stream == nullptr) ? std::cout : *out_file_stream;
 
   if (binary_mode) {
-    cpp11embed::OutputBinaryDataHeader(args::get(identifier_name), input_stream,
-                                       output_stream);
+    cpp11embed::OutputBinaryDataHeader(args::get(identifier_name),
+                                       args::get(use_header_guard),
+                                       input_stream, output_stream);
   } else {
     cpp11embed::OutputEscapedStringLiteralHeader(args::get(identifier_name),
+                                                 args::get(use_header_guard),
                                                  input_stream, output_stream);
   }
   return true;
@@ -75,6 +77,9 @@ int main(const int argc, char *argv[]) {
   args::Flag binary_mode(parser, "binary_mode",
                          "The input is binary data and not text",
                          {'b', "binary-mode"});
+  args::Flag use_header_guard(parser, "use_header_guard",
+                              "Use a header guard rather than #pragma once",
+                              {'g', "use-header-guard"});
 
   try {
     parser.ParseCLI(argc, argv);
@@ -91,7 +96,8 @@ int main(const int argc, char *argv[]) {
     return EXIT_FAILURE;
   }
 
-  return OutputHeader(input_file, identifier_name, output_filename, binary_mode)
+  return OutputHeader(input_file, identifier_name, output_filename, binary_mode,
+                      use_header_guard)
              ? EXIT_SUCCESS
              : EXIT_FAILURE;
 }

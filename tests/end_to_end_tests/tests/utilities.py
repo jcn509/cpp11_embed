@@ -19,6 +19,7 @@ get_cpp11_embed_path._cpp11_embed_path = None
 def run_cpp11_embed(
     input_filename: str,
     identifier_name: str,
+    use_header_guard: bool,
     other_arguments: Tuple[str] = tuple(),
     standard_input: Optional[str] = None,
 ):
@@ -26,5 +27,10 @@ def run_cpp11_embed(
     :returns: the result from subprocess.run
     """
     # pylint:disable=subprocess-run-check
-    cmd = (get_cpp11_embed_path(), input_filename, identifier_name) + other_arguments
+    header_guard_flag = ("--use-header-guard",) if use_header_guard else tuple()
+    cmd = (
+        (get_cpp11_embed_path(), input_filename, identifier_name)
+        + header_guard_flag
+        + other_arguments
+    )
     return subprocess.run(cmd, capture_output=True, text=True, input=standard_input)

@@ -19,11 +19,12 @@ std::string GetEscapedStringLiteral(const std::string& to_escape) {
 }
 
 std::string GetEscapedStringLiteralHeader(const std::string& identifier,
+                                          const bool use_header_guard,
                                           const std::string& literal_value) {
   std::istringstream input_stream{literal_value};
   std::ostringstream output_stream;
-  cpp11embed::OutputEscapedStringLiteralHeader(identifier, input_stream,
-                                               output_stream);
+  cpp11embed::OutputEscapedStringLiteralHeader(identifier, use_header_guard,
+                                               input_stream, output_stream);
   return output_stream.str();
 }
 
@@ -34,10 +35,12 @@ bool CharShouldBeEscaped(const char c) {
 }
 
 std::string GetBinaryHeader(const std::string& identifier,
-                            const char* const data, const size_t data_size) {
+                            const bool use_header_guard, const char* const data,
+                            const size_t data_size) {
   std::istringstream input_stream{std::string{data, data_size}};
   std::ostringstream output_stream;
-  cpp11embed::OutputBinaryDataHeader(identifier, input_stream, output_stream);
+  cpp11embed::OutputBinaryDataHeader(identifier, use_header_guard, input_stream,
+                                     output_stream);
   return output_stream.str();
 }
 }  // namespace
@@ -147,8 +150,11 @@ TEST_CASE("cpp11embed::OutputStringLiteralHeader",
           "[cpp11embed][OutputStringLiteralHeader]") {
   const std::string identifier = "an_identifier";
   const std::string literal_value = "abcdefg\n";
-  REQUIRE(GetEscapedStringLiteralHeader(identifier, literal_value) ==
+  REQUIRE(GetEscapedStringLiteralHeader(identifier, false, literal_value) ==
           "#pragma once\n\nconstexpr char* an_identifier = \"abcdefg\\n\";\n");
+  REQUIRE(GetEscapedStringLiteralHeader(identifier, true, literal_value) ==
+          "#ifndef AN_IDENTIFIER\n#define AN_IDENTIFIER\n\nconstexpr char* "
+          "an_identifier = \"abcdefg\\n\";\n\n#endif\n");
 }
 
 TEST_CASE("cpp11embed::GetBinaryInitialiser {1, 2, 3, 4}",
@@ -174,15 +180,25 @@ TEST_CASE("cpp11embed::GetBinaryInitialiser {9, 12, 3}",
 TEST_CASE("cpp11embed::OutputBinaryDataHeader {1, 2, 3, 4}",
           "[cpp11embed][OutputBinaryDataHeader]") {
   constexpr char input[]{1, 2, 3, 4};
-  REQUIRE(GetBinaryHeader("identifier", input, sizeof(input)) ==
+  REQUIRE(GetBinaryHeader("identifier", false, input, sizeof(input)) ==
           "#pragma once\n\n#include <array>\n#include <cstdint>\n\n"
           "constexpr std::array<uint8_t, 4> identifier{1, 2, 3, 4};\n");
+  REQUIRE(
+      GetBinaryHeader("identifier", true, input, sizeof(input)) ==
+      "#ifndef IDENTIFIER\n#define IDENTIFIER\n\n#include "
+      "<array>\n#include <cstdint>\n\n"
+      "constexpr std::array<uint8_t, 4> identifier{1, 2, 3, 4};\n\n#endif\n");
 }
 
 TEST_CASE("cpp11embed::OutputBinaryDataHeader {9, 12, 3}",
           "[cpp11embed][OutputBinaryDataHeader]") {
   constexpr char input[]{9, 12, 3};
-  REQUIRE(GetBinaryHeader("another_identifier", input, sizeof(input)) ==
+  REQUIRE(GetBinaryHeader("another_identifier", false, input, sizeof(input)) ==
           "#pragma once\n\n#include <array>\n#include <cstdint>\n\n"
           "constexpr std::array<uint8_t, 3> another_identifier{9, 12, 3};\n");
+  REQUIRE(GetBinaryHeader("another_identifier", true, input, sizeof(input)) ==
+          "#ifndef ANOTHER_IDENTIFIER\n#define ANOTHER_IDENTIFIER\n\n#include "
+          "<array>\n#include <cstdint>\n\n"
+          "constexpr std::array<uint8_t, 3> another_identifier{9, 12, "
+          "3};\n\n#endif\n");
 }
