@@ -40,6 +40,12 @@ cpp11_embed_generate_header(
     USE_HEADER_GUARD TRUE
 )
 
+cpp11_embed_generate_header(
+    "${TEST_FILES_DIR}/two_lines.txt"
+    "k_text_header_in_a_subdirectory"
+    "InASubDirectory/TextHeader2.h"
+)
+
 add_executable(Cpp11EmbedSelfTests
     Main.cpp
     SelfTests.cpp
