@@ -61,7 +61,9 @@ int main(const int argc, char *argv[]) {
 
   // Required arguments
   args::Positional<std::string> input_file(
-      parser, "input_file", "Input file (use - to read from stdin)",
+      parser, "input_file",
+      "Input file (use - to read from stdin). Note: input is read exactly and "
+      "line-endings are left unchanged",
       args::Options::Required);
   args::Positional<std::string> identifier_name(
       parser, "identifier_name",
