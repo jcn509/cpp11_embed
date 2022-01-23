@@ -42,7 +42,7 @@ def get_expected_text_data_header(
 
 def run_cpp11_embed_arbitrary_arguments(
     arguments: Tuple[str], standard_input: Optional[str] = None
-):
+) -> subprocess.CompletedProcess[str]:
     """Note: use run_cpp11_embed instead unless you are trying
     to pass invalid arguments.
 
@@ -60,7 +60,7 @@ def run_cpp11_embed(
     use_header_guard: bool,
     other_arguments: Tuple[str] = tuple(),
     standard_input: Optional[str] = None,
-):
+) -> subprocess.CompletedProcess[str]:
     """Runs cpp11_embed and captures the output
     :returns: the result from subprocess.run
     """
