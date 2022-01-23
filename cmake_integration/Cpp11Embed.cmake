@@ -1,3 +1,8 @@
+
+# Note: you must add the generated header
+# to the source of some target to ensure that it
+# actually gets generated (see the self tests
+# CMakeLists.txt for an example)
 function(cpp11_embed_generate_header 
     INPUT_FILE_PATH
     IDENTIFIER_NAME
@@ -21,7 +26,7 @@ function(cpp11_embed_generate_header
     add_custom_command(
         PRE_BUILD
         OUTPUT "${OUTPUT_FILE_PATH}"
-        COMMAND Cpp11Embed ${CPP11_EMBED_ARGS}
+        COMMAND "${CPP11_EMBED_EXECUTABLE_PATH}" ${CPP11_EMBED_ARGS}
         COMMENT "Generating header ${OUTPUT_FILE_PATH}"
         DEPENDS "${INPUT_FILE_PATH}"
     )
