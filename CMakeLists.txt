@@ -26,7 +26,7 @@ target_include_directories(Cpp11EmbedLib PUBLIC ${CMAKE_CURRENT_LIST_DIR}/src)
 add_executable(Cpp11Embed
     ${CMAKE_CURRENT_LIST_DIR}/src/Main.cpp
 )
-target_include_directories(Cpp11Embed PRIVATE SYSTEM ${CMAKE_CURRENT_LIST_DIR}/libs/args/)
+target_include_directories(Cpp11Embed SYSTEM PRIVATE ${CMAKE_CURRENT_LIST_DIR}/libs/args/)
 
 target_link_libraries(Cpp11Embed PRIVATE Cpp11EmbedLib)
 
