@@ -103,8 +103,8 @@ void OutputEscapedStringLiteralHeader(const std::string &identifier_name,
   OutputHeader(identifier_name, use_header_guard, input_stream, output_stream,
                [](const std::string &identifier_name,
                   std::istream &input_stream, std::ostream &output_stream) {
-                 output_stream << "constexpr char* " << identifier_name
-                               << " = ";
+                 output_stream << "constexpr char " << identifier_name
+                               << "[] = ";
                  OutputEscapedStringLiteral(input_stream, output_stream);
                  output_stream << ";";
                });

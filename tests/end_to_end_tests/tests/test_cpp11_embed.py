@@ -7,7 +7,9 @@ import pytest
 
 from .utilities import run_cpp11_embed
 
-_TEST_FILES_DIR = Path(os.path.dirname(__file__)) / "test_files"
+_TEST_FILES_DIR = (
+    Path(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))) / "test_files"
+)
 
 _FILES_AND_ESCAPED_CONTENTS = (
     ("one_line.txt", "abcdef"),
@@ -23,8 +25,8 @@ def _get_expected_text_data_header(
 ) -> str:
     if use_header_guard:
         header_guard = identifier_name.upper()
-        return f'#ifndef {header_guard}\n#define {header_guard}\n\nconstexpr char* {identifier_name} = "{string_literal_contents}";\n\n#endif\n'
-    return f'#pragma once\n\nconstexpr char* {identifier_name} = "{string_literal_contents}";\n'
+        return f'#ifndef {header_guard}\n#define {header_guard}\n\nconstexpr char {identifier_name}[] = "{string_literal_contents}";\n\n#endif\n'
+    return f'#pragma once\n\nconstexpr char {identifier_name}[] = "{string_literal_contents}";\n'
 
 
 def _get_expected_binary_data_header(

@@ -151,10 +151,10 @@ TEST_CASE("cpp11embed::OutputStringLiteralHeader",
   const std::string identifier = "an_identifier";
   const std::string literal_value = "abcdefg\n";
   REQUIRE(GetEscapedStringLiteralHeader(identifier, false, literal_value) ==
-          "#pragma once\n\nconstexpr char* an_identifier = \"abcdefg\\n\";\n");
+          "#pragma once\n\nconstexpr char an_identifier[] = \"abcdefg\\n\";\n");
   REQUIRE(GetEscapedStringLiteralHeader(identifier, true, literal_value) ==
-          "#ifndef AN_IDENTIFIER\n#define AN_IDENTIFIER\n\nconstexpr char* "
-          "an_identifier = \"abcdefg\\n\";\n\n#endif\n");
+          "#ifndef AN_IDENTIFIER\n#define AN_IDENTIFIER\n\nconstexpr char "
+          "an_identifier[] = \"abcdefg\\n\";\n\n#endif\n");
 }
 
 TEST_CASE("cpp11embed::GetBinaryInitialiser {1, 2, 3, 4}",
@@ -167,12 +167,15 @@ TEST_CASE("cpp11embed::GetBinaryInitialiser {1, 2, 3, 4}",
   REQUIRE(initialiser.number_of_elements == 4);
 }
 
-TEST_CASE("cpp11embed::GetBinaryInitialiser {9, 12, 3}",
+TEST_CASE("cpp11embed::GetBinaryInitialiser {9, 12, '\n' 3}",
           "[cpp11embed][GetBinaryInitialiser]") {
-  constexpr char input[]{9, 12, 3};
+  // New line should not be escaped
+  constexpr char input[]{9, 12, '\n', 3};
   std::istringstream input_stream{std::string{input, sizeof(input)}};
   const cpp11embed::InitialiserAndNumberOfElements initialiser =
       cpp11embed::GetBinaryInitialiser(input_stream);
+  std::string expected_output =
+      "{9, 12, " + std::to_string(static_cast<int>('\n')) + ", 3}";
   REQUIRE(initialiser.initialiser == "{9, 12, 3}");
   REQUIRE(initialiser.number_of_elements == 3);
 }
