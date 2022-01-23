@@ -41,7 +41,7 @@ cpp11_embed_generate_header(
 )
 
 cpp11_embed_generate_header(
-    "${TEST_FILES_DIR}/two_lines.txt"
+    "${TEST_FILES_DIR}/one_line.txt"
     "k_text_header_in_a_subdirectory"
     "InASubDirectory/TextHeader2.h"
 )

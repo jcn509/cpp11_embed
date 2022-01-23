@@ -22,12 +22,20 @@
 TEST_CASE("cpp11embedtest auto-generated text header",
           "[cpp11embed][SelfTest]") {
   REQUIRE(std::strcmp(k_text_header, "one line\ntwo lines") == 0);
+  // Should be able to use sizeof to get string length
+  REQUIRE(sizeof(k_text_header) == 19);
+  constexpr auto string_length = sizeof(k_text_header) - 1;
+  REQUIRE(std::strlen(k_text_header) == string_length);
 }
 
 TEST_CASE("cpp11embedtest auto-generated text header with header guard",
           "[cpp11embed][SelfTest]") {
   REQUIRE(std::strcmp(k_text_header_with_header_guard, "one line\ntwo lines") ==
           0);
+  // Should be able to use sizeof to get string length
+  REQUIRE(sizeof(k_text_header_with_header_guard) == 19);
+  constexpr auto string_length = sizeof(k_text_header_with_header_guard) - 1;
+  REQUIRE(std::strlen(k_text_header_with_header_guard) == string_length);
 }
 
 TEST_CASE("cpp11embedtest auto-generated binary header",
@@ -46,6 +54,9 @@ TEST_CASE("cpp11embedtest auto-generated binary header with header guard",
 
 TEST_CASE("cpp11embedtest auto-generated text header in a subdirectory",
           "[cpp11embed][SelfTest]") {
-  REQUIRE(std::strcmp(k_text_header_in_a_subdirectory, "one line\ntwo lines") ==
-          0);
+  REQUIRE(std::strcmp(k_text_header_in_a_subdirectory, "abcdef") == 0);
+  // Should be able to use sizeof to get string length
+  REQUIRE(sizeof(k_text_header_in_a_subdirectory) == 7);
+  constexpr auto string_length = sizeof(k_text_header_in_a_subdirectory) - 1;
+  REQUIRE(std::strlen(k_text_header_in_a_subdirectory) == string_length);
 }
