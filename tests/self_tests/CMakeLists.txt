@@ -8,8 +8,10 @@
 # instead you have the binary saved somewhere then set 
 # CPP11_EMBED_EXECUTABLE_PATH to the full path to the binary
 set(CPP11_EMBED_EXECUTABLE_PATH Cpp11Embed)
-
 include("${CMAKE_CURRENT_LIST_DIR}/../../cmake_integration/Cpp11Embed.cmake")
+
+# This tool should generate header files compatible with C++11
+set(CMAKE_CXX_STANDARD 11)
 
 set(TEST_FILES_DIR "${CMAKE_CURRENT_LIST_DIR}/../test_files")
 cpp11_embed_generate_header(
@@ -55,7 +57,7 @@ target_link_libraries(Cpp11EmbedSelfTests PRIVATE
     Cpp11EmbedLib
     Catch2::Catch2
     # Make sure all the auto-generated headers get generated
-    # before this target is built adn that we can include them
+    # before this target is built and that we can include them
     Cpp11EmbedGeneratedHeaders
 )
 
