@@ -37,8 +37,7 @@ jobs:
               cmake \
               ninja \
               pyenv
-            pyenv install 3.8.10
-            pyenv global 3.8.10
+            ln -s -f $(which python3) /usr/local/bin/python
         else
             echo "$RUNNER_OS not supported"
             exit 1
